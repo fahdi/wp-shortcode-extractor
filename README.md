@@ -26,4 +26,4 @@ For support, issues, or feature requests, please contact [support email].
 This plugin is licensed under the [license type].
 
 ## Author
-[Author Name]
+Fahad Murtaza
