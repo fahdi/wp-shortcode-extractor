@@ -34,13 +34,14 @@ function shortcode_extractor_page() {
     <div class="wrap">
         <h1>Shortcode Extractor</h1>
         <form method="post">
+            <?php wp_nonce_field( 'sce_extract_shortcodes', 'sce_nonce' ); ?>
             <textarea name="page_urls" rows="10" cols="50" placeholder="Enter URLs, one per line"></textarea>
             <input type="submit" value="Extract Shortcodes" class="button button-primary">
         </form>
 		<?php
-		if ( $_SERVER['REQUEST_METHOD'] === 'POST' && ! empty( $_POST['page_urls'] ) ) {
-			// Call the function to process URLs
-			process_page_urls( $_POST['page_urls'] );
+		if ( isset( $_POST['sce_nonce'], $_POST['page_urls'] ) && current_user_can( 'manage_options' ) ) {
+			check_admin_referer( 'sce_extract_shortcodes', 'sce_nonce' );
+			process_page_urls( sanitize_textarea_field( wp_unslash( $_POST['page_urls'] ) ) );
 		}
 		?>
     </div>
@@ -71,7 +72,7 @@ function process_page_urls( $page_urls ) {
 		$url = trim( $url );
 		if ( ! empty( $url ) ) {
 			$page_id = url_to_postid( $url );
-			if ( $page_id ) {
+			if ( $page_id && current_user_can( 'edit_post', $page_id ) ) {
 				$content    = get_post_field( 'post_content', $page_id );
 				$shortcodes = extract_shortcodes_from_content( $content );
 				echo "<li>[ ] " . esc_url( $url ) . "</li>";
